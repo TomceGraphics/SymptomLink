@@ -1,0 +1,24 @@
+# Local development server
+server.py
+
+# Showcase/Design files
+showcase/
+
+# Credentials and sensitive info
+supabase_pass
+.env
+.env.local
+
+# Local data files (redundant with Supabase)
+appointments.json
+doctors.json
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Node dependencies (if any added later)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
