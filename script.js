@@ -17,7 +17,8 @@ let state = {
     currentUser: null,
     appointments: [],
     doctors: [],
-    selectedDoctor: null
+    selectedDoctor: null,
+    searchMode: 'ai' // 'ai' or 'keyword'
 };
 
 // --- DATABASE LOADER (Supabase + Fallback) ---
@@ -79,7 +80,63 @@ if (symptomInput) {
 
 function triggerSearch() {
     const text = symptomInput.value;
-    performSmartSearch(text);
+    if (state.searchMode === 'ai') {
+        performSmartSearch(text);
+    } else {
+        fallbackLocalSearch(text.toLowerCase().trim());
+    }
+}
+
+function toggleSearchMenu() {
+    const menu = document.getElementById('search-mode-menu');
+    menu.classList.toggle('hidden');
+}
+
+function selectSearchMode(mode) {
+    const menu = document.getElementById('search-mode-menu');
+    const btnText = document.getElementById('current-mode-text');
+    const btnIcon = document.getElementById('mode-icon');
+
+    // UI Elements for Active State in Menu
+    const btnAi = document.getElementById('btn-mode-ai');
+    const btnKey = document.getElementById('btn-mode-key');
+
+    menu.classList.add('hidden'); // Close menu
+
+    if (mode === state.searchMode) return; // No change
+
+    if (mode === 'keyword') {
+        // Warning for Keyword Mode
+        showToast("Keyword search is less advanced and relies on exact matches. Continue?", {
+            type: 'warning',
+            title: 'Search Disclaimer',
+            showButtons: true,
+            onOk: () => {
+                state.searchMode = 'keyword';
+                // Update Button UI
+                btnText.innerText = "Keyword Match";
+                btnIcon.className = "fas fa-key text-slate-500";
+
+                // Update Menu Selection UI
+                btnKey.className = "w-full text-left p-2.5 rounded-xl flex items-start gap-3 mb-1 transition-all bg-blue-50/60 border border-blue-200/50 ring-1 ring-blue-100 relative overflow-hidden";
+                btnAi.className = "w-full text-left p-2.5 rounded-xl flex items-start gap-3 mb-1 transition-all hover:bg-slate-50 border border-transparent opacity-60 hover:opacity-100";
+
+                showToast("Switched to Keyword Search");
+            }
+        });
+    } else {
+        // Switch to AI Mode
+        state.searchMode = 'ai';
+        // Update Button UI
+        btnText.innerText = "Natural Language";
+        btnIcon.className = "fas fa-sparkles text-blue-500";
+
+        // Update Menu Selection UI
+        btnAi.className = "w-full text-left p-2.5 rounded-xl flex items-start gap-3 mb-1 transition-all bg-blue-50/60 border border-blue-200/50 ring-1 ring-blue-100 relative overflow-hidden";
+        btnKey.className = "w-full text-left p-2.5 rounded-xl flex items-start gap-3 mb-1 transition-all hover:bg-slate-50 border border-transparent opacity-60 hover:opacity-100";
+
+        showToast("Switched to AI Natural Language");
+    }
 }
 
 // --- LLM SIMULATION & SEARCH ---
@@ -369,8 +426,6 @@ async function cancelApp(id) {
 }
 
 // --- BOOKING ---
-// --- NEW BOOKING LOGIC ---
-
 // 1. Generate Future Dates (Next 14 days)
 function renderDateOptions() {
     const container = document.getElementById('date-picker-container');
@@ -425,7 +480,7 @@ function renderTimeOptions() {
         if (isBooked) {
             btn.className = `py-2 rounded-xl border border-slate-100 bg-slate-50 text-sm font-semibold text-slate-300 cursor-not-allowed time-card`;
             btn.disabled = true;
-            btn.innerHTML = `${time} <span class="text-[10px] block opacity-60">Booked</span>`;
+            btn.innerHTML = `${time}`;
         } else {
             btn.className = `py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:border-blue-400 hover:text-blue-600 transition-all cursor-pointer time-card bg-white`;
             btn.innerText = time;
@@ -517,20 +572,61 @@ async function submitBooking() {
     await initDatabase();
 }
 
-function showToast(msg) {
+function showToast(msg, options = {}) {
     const toast = document.getElementById('toast');
-    document.getElementById('toast-msg').innerText = msg;
+    const toastMsg = document.getElementById('toast-msg');
+    const toastTitle = document.getElementById('toast-title');
+    const toastIcon = document.getElementById('toast-icon');
+    const toastIconBg = document.getElementById('toast-icon-bg');
+    const toastActions = document.getElementById('toast-actions');
+    const btnOk = document.getElementById('toast-ok');
+    const btnCancel = document.getElementById('toast-cancel');
+
+    // Reset classes
+    toastIconBg.className = "flex h-8 w-8 items-center justify-center rounded-full";
+    toastActions.classList.add('hidden');
+
+    // Set content
+    toastMsg.innerText = msg;
+    toastTitle.innerText = options.title || (options.type === 'warning' ? 'Warning' : 'Success');
+
+    if (options.type === 'warning') {
+        toastIconBg.classList.add('bg-orange-50', 'text-orange-600');
+        toastIcon.className = "fas fa-exclamation-triangle text-sm";
+    } else {
+        toastIconBg.classList.add('bg-blue-50', 'text-blue-600');
+        toastIcon.className = "fas fa-check text-sm";
+    }
+
+    if (options.showButtons) {
+        toastActions.classList.remove('hidden');
+        btnOk.onclick = () => {
+            if (options.onOk) options.onOk();
+            hideToast();
+        };
+        btnCancel.onclick = () => {
+            if (options.onCancel) options.onCancel();
+            hideToast();
+        };
+    }
+
     toast.classList.remove('hidden');
     setTimeout(() => {
         toast.classList.add('opacity-100', 'translate-y-0');
     }, 10);
 
+    // Auto hide if no buttons
+    if (!options.showButtons) {
+        setTimeout(hideToast, 3000);
+    }
+}
+
+function hideToast() {
+    const toast = document.getElementById('toast');
+    toast.classList.remove('opacity-100', 'translate-y-0');
     setTimeout(() => {
-        toast.classList.remove('opacity-100', 'translate-y-0');
-        setTimeout(() => {
-            toast.classList.add('hidden');
-        }, 300);
-    }, 3000);
+        toast.classList.add('hidden');
+    }, 300);
 }
 
 // --- CLIENT-SIDE ROUTING ---
