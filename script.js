@@ -1,5 +1,5 @@
 // --- CONFIGURATION ---
-// GEMINI_API_KEY is now handled securely via Netlify Functions proxy
+const GEMINI_API_KEY = "AIzaSyCNzU3YTTebV0vXcE09d2RLohBN03pxZQA";
 const SUPABASE_URL = "https://tnlfpyeamaskozvxrkqm.supabase.co";
 const SUPABASE_KEY = "sb_publishable_17fMmELPFPSlERnCdIn8aw_HfE6Uz4g";
 
@@ -153,7 +153,7 @@ async function performSmartSearch(sentence) {
     console.log("🚀 Sending to Gemini 2.5:", query);
 
     try {
-        const response = await fetch(`/.netlify/functions/gemini-proxy`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
