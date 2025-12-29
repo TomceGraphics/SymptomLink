@@ -416,7 +416,7 @@ function renderTimeOptions() {
     // Find already booked slots for this doctor on this date
     const bookedSlots = state.appointments
         .filter(app => app.doctor === selectedDoctor.name && app.date === selectedDate)
-        .map(app => app.time);
+        .map(app => app.time ? app.time.substring(0, 5) : ""); // Normalize HH:MM:SS to HH:MM with safety check
 
     times.forEach(time => {
         const isBooked = bookedSlots.includes(time);
