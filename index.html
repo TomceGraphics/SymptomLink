@@ -90,7 +90,7 @@
             <!-- Main Input Area -->
             <div class="relative w-full max-w-2xl mx-auto z-30">
                 <div
-                    class="group relative flex flex-col rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-200/40 transition-all duration-300 focus-within:border-blue-400 focus-within:ring-4 focus-within:ring-blue-500/5">
+                    class="group relative flex flex-col rounded-3xl border border-slate-200 bg-white shadow-xl transition-all duration-300 focus-within:border-blue-400">
 
                     <!-- Text Area -->
                     <textarea id="symptomInput" placeholder="Describe your symptoms (e.g., sharp pain in lower back)..."
@@ -115,7 +115,7 @@
 
                             <!-- MODEL TRIGGER BUTTON -->
                             <button onclick="toggleSearchMenu()" id="search-mode-btn"
-                                class="group flex items-center gap-2 h-9 pl-3 pr-2.5 rounded-full text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50/50 transition-all shadow-sm">
+                                class="group flex items-center gap-2 h-9 pl-3 pr-2.5 rounded-full text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:border-blue-300 hover:text-blue-600 transition-all shadow-sm">
                                 <i id="mode-icon" class="fa-solid fa-wand-magic-sparkles text-blue-500"></i>
                                 <span id="current-mode-text">Natural Language</span>
                                 <i
@@ -124,7 +124,7 @@
 
                             <!-- MODEL POPOVER MENU (Hidden by default)-->
                             <div id="search-mode-menu"
-                                class="hidden absolute bottom-[130%] left-0 w-[280px] bg-white rounded-2xl border border-slate-200 shadow-2xl shadow-slate-300/50 p-2 z-50 origin-bottom-left animate-in fade-in zoom-in-95 slide-in-from-bottom-1">
+                                class="hidden absolute bottom-[130%] left-0 w-[280px] bg-white rounded-2xl border border-slate-200 shadow-xl p-2 z-50 origin-bottom-left animate-in fade-in zoom-in-95 slide-in-from-bottom-1">
 
                                 <!-- Menu Header -->
                                 <div class="px-3 py-2 border-b border-slate-100 mb-1 flex justify-between items-center">
@@ -178,7 +178,7 @@
 
                         <!-- RIGHT ACTION -->
                         <button onclick="triggerSearch()"
-                            class="h-10 w-10 inline-flex items-center justify-center rounded-xl bg-slate-900 text-white shadow-md hover:bg-blue-600 hover:shadow-blue-200 transition-all duration-150 ease-out active:scale-95">
+                            class="h-10 w-10 inline-flex items-center justify-center rounded-xl bg-slate-900 text-white shadow-md hover:bg-blue-600 transition-all duration-150 ease-out active:scale-95">
                             <i class="fa-solid fa-arrow-up"></i>
                         </button>
 
@@ -227,7 +227,7 @@
         </main>
     </section>
 
-    <!-- DOCTOR LOGIN SECTION -->
+    <!-- LOGIN SECTION -->
     <section id="login-section" class="hidden min-h-screen flex items-center justify-center p-4 bg-slate-50">
         <div class="w-full max-w-[400px] bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden">
             <div class="p-8 text-center">
@@ -243,12 +243,12 @@
                 <div class="space-y-2">
                     <label class="text-xs font-bold uppercase text-slate-400">Username</label>
                     <input type="text" id="login-user" placeholder="e.g. sarah" autocomplete="off"
-                        class="flex h-11 w-full rounded-lg border border-slate-200 bg-transparent px-3 text-sm placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all">
+                        class="flex h-11 w-full rounded-lg border border-slate-200 bg-transparent px-3 text-sm placeholder:text-slate-400 focus:outline-none focus:border-blue-500 transition-all">
                 </div>
                 <div class="space-y-2">
                     <label class="text-xs font-bold uppercase text-slate-400">Password</label>
                     <input type="password" id="login-pass" placeholder="••••••••" autocomplete="off"
-                        class="flex h-11 w-full rounded-lg border border-slate-200 bg-transparent px-3 text-sm placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all">
+                        class="flex h-11 w-full rounded-lg border border-slate-200 bg-transparent px-3 text-sm placeholder:text-slate-400 focus:outline-none focus:border-blue-500 transition-all">
                 </div>
 
                 <button onclick="handleLogin()"
@@ -343,7 +343,7 @@
                 <div class="space-y-2">
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wide">Patient Name</label>
                     <input id="form-name"
-                        class="flex h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-base placeholder:text-slate-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
+                        class="flex h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-base placeholder:text-slate-300 focus:outline-none focus:border-blue-500 transition-all"
                         placeholder="Enter full name" />
                 </div>
 

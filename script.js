@@ -268,7 +268,7 @@ function updateStatusPill(count) {
         grid.classList.remove('hidden');
         noResults.classList.add('hidden');
         pill.innerText = `Found ${count} Specialist${count > 1 ? 's' : ''}`;
-        pill.className = "bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse whitespace-nowrap flex-shrink-0";
+        pill.className = "bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap flex-shrink-0";
     }
 }
 
@@ -298,7 +298,7 @@ function renderDoctorCards(list) {
                 <div class="flex gap-2 mb-6 flex-wrap">
                     ${doc.keywords.slice(0, 3).map(k => `<span class="bg-slate-50 text-slate-500 text-[10px] px-2 py-1 rounded-lg border border-slate-100 uppercase tracking-wide">${k}</span>`).join('')}
                 </div>
-                <button onclick="openModal(${doc.id})" class="mt-auto w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-blue-600 transition-all shadow-lg shadow-slate-200">Request Appointment</button>
+                <button onclick="openModal(${doc.id})" class="mt-auto w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-blue-600 transition-all shadow-lg">Request Appointment</button>
             </div>
         `;
     });
@@ -361,7 +361,7 @@ function renderDoctorDashboard() {
                 </div>
                 <div class="flex gap-2">
                     <button onclick="viewPatientRecord('${app.patient}')" class="px-4 py-2 border border-slate-200 text-slate-600 text-xs font-bold rounded-xl hover:bg-slate-50 transition-all">View Record</button>
-                    <button onclick="resolveAppointment(${app.id})" class="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700 transition-all shadow-md shadow-blue-100">Resolve</button>
+                    <button onclick="resolveAppointment(${app.id})" class="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700 transition-all shadow-md">Resolve</button>
                 </div>
             </div>
         `;
@@ -518,7 +518,7 @@ function selectTime(el, value) {
     });
 
     // Set Active
-    el.className = "py-2 rounded-xl border-2 border-blue-600 bg-blue-600 text-white text-sm font-bold shadow-md shadow-blue-200 transition-all cursor-pointer time-card";
+    el.className = "py-2 rounded-xl border-2 border-blue-600 bg-blue-600 text-white text-sm font-bold shadow-md transition-all cursor-pointer time-card";
 
     document.getElementById('selected-time-value').value = value;
 }
