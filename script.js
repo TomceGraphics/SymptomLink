@@ -262,7 +262,7 @@ function handleLogin() {
 
         document.getElementById('login-user').value = '';
         document.getElementById('login-pass').value = '';
-    } else if (user === 'admin' && pass === 'admin123') {
+    } else if (user === 'admin' && pass === 'admin') {
         showToast("Admin access granted");
         state.currentUser = { name: "Admin", role: "admin" };
         navigateTo('/admin');

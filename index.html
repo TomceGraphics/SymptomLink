@@ -11,21 +11,18 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-        :root {
-            --radius: 0.75rem;
-        }
-
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #ffffff;
+            background-color: #f8fafc;
+            /* Slate-50 */
             color: #0f172a;
+            /* Slate-900 */
             -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Subtler Scrollbar */
+        /* Blue-tinted Scrollbar */
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 8px;
         }
 
         ::-webkit-scrollbar-track {
@@ -33,31 +30,15 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #e2e8f0;
+            background: #cbd5e1;
             border-radius: 10px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: #cbd5e1;
+            background: #3b82f6;
         }
 
-        /* Utilities mimicking Shadcn */
-        .border-border {
-            border-color: #e2e8f0;
-        }
-
-        .bg-background {
-            background-color: #ffffff;
-        }
-
-        .bg-muted {
-            background-color: #f8fafc;
-        }
-
-        .input-ring:focus-within {
-            outline: none;
-            box-shadow: 0 0 0 2px #fff, 0 0 0 4px #2563eb;
-        }
+        /* Blue hover */
 
         /* Animations */
         .fade-in {
@@ -75,222 +56,276 @@
                 transform: translateY(0);
             }
         }
+
+        /* Custom Focus Ring for Inputs */
+        .focus-ring:focus-within {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        }
     </style>
 </head>
 
 <body class="bg-slate-50 text-slate-900 min-h-screen">
 
     <!-- PATIENT PORTAL -->
-    <section id="patient-section" class="fade-in">
+    <section id="patient-section"
+        class="fade-in min-h-screen flex flex-col bg-gradient-to-b from-blue-50/50 to-slate-50/20">
 
-        <!--LLM-STYLE HEADER -->
-        <header class="max-w-3xl mx-auto px-6 py-20 md:py-[160px] text-center ">
-
+        <!-- Hero Header -->
+        <header class="w-full max-w-3xl mx-auto px-6 pt-24 pb-16 text-center">
+            <!-- Badge -->
             <div
-                class="inline-block bg-blue-100 text-blue-700 text-[10px] font-bold px-3 py-1 rounded-full mb-6 uppercase tracking-wider">
-                <i class="fas fa-sparkles mr-1"></i> AI Triage Assistant
+                class="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 mb-8 shadow-sm">
+                <i class="fas fa-sparkles mr-2 text-blue-500"></i>
+                AI Triage Assistant
             </div>
 
-            <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 mb-4 leading-tight tracking-tight">
+            <h1 class="text-4xl font-extrabold tracking-tight lg:text-6xl text-slate-900 mb-6">
                 How are you feeling?
             </h1>
-            <p class="text-slate-500 text-lg mb-10 max-w-lg mx-auto leading-relaxed">
-                Describe your symptoms in your own words. We’ll listen to your concerns and connect you with the right
-                care team.
+            <p class="text-lg text-slate-500 leading-relaxed max-w-xl mx-auto mb-10">
+                Describe your symptoms. We'll match you with the right care team instantly.
             </p>
 
-            <!--LLM INPUT BAR -->
-            <div class="relative max-w-2xl mx-auto px-4">
+            <!-- Main Input -->
+            <div class="relative w-full max-w-2xl mx-auto">
                 <div
-                    class="flex items-center bg-white border border-slate-200 rounded-[32px] p-2 shadow-sm transition-all focus-within:shadow-md focus-within:border-slate-300">
-
-                    <textarea id="symptomInput" placeholder="Describe your symptoms..." rows="1"
-                        class=" placeholder:text-sm md:placeholder:text-base placeholder:truncate flex-grow bg-transparent pl-4 pr-2 py-3 text-[16px] md:text-[17px] text-slate-700 placeholder:text-slate-400 outline-none resize-none max-h-48 overflow-y-auto leading-normal"
+                    class="group relative flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-lg shadow-blue-900/5 focus-ring transition-all duration-200">
+                    <textarea id="symptomInput" placeholder="E.g., I have a sharp pain in my lower back..."
+                        class="min-h-[60px] w-full resize-none bg-transparent px-4 py-2 text-base placeholder:text-slate-400 focus:outline-none"
                         oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea>
 
-                    <div class="flex items-center gap-2 pr-1 flex-shrink-0">
+                    <div class="flex items-center justify-between px-2 pb-1">
                         <button
-                            class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors">
-                            <i class="fa-solid fa-microphone text-xl"></i>
+                            class="inline-flex items-center justify-center rounded-full h-10 w-10 text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                            <i class="fa-solid fa-microphone text-lg"></i>
                         </button>
 
-                        <!-- SUBMIT BUTTON -->
+                        <!-- Primary Action Button (Blue) -->
                         <button onclick="triggerSearch()"
-                            class="w-11 h-11 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all">
-                            <i class="fa-solid fa-arrow-up text-lg"></i>
+                            class="inline-flex items-center justify-center rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-200 transition-all hover:bg-blue-700 hover:shadow-lg active:scale-95">
+                            Analyze Symptoms
+                            <i class="fa-solid fa-arrow-up ml-2"></i>
                         </button>
-
                     </div>
                 </div>
             </div>
-            <!-- AI Status Text -->
-            <div class="h-8 mt-4 flex items-center justify-center gap-2 opacity-0 transition-opacity duration-300"
-                id="ai-status">
-                <div class="flex gap-1">
-                    <div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
-                    <div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                    <div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                </div>
+
+            <!-- Processing Status -->
+            <div id="ai-status"
+                class="mt-8 opacity-0 transition-opacity duration-300 flex justify-center items-center gap-2">
+                <span class="relative flex h-3 w-3">
+                    <span
+                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-600"></span>
+                </span>
                 <span class="text-xs font-bold text-blue-600 uppercase tracking-widest"
                     id="ai-status-text">Processing</span>
             </div>
-
-            <!-- DISCLAIMER -->
-            <div
-                class="mt-10 flex items-center justify-center gap-2 text-slate-400 opacity-70 hover:opacity-100 transition-opacity duration-300">
-                <p class="text-[10px] tracking-wide">
-                    <strong>Medical Disclaimer:</strong> Your health is personal. While our AI can guide you, please
-                    consult a professional for medical diagnosis.
-                </p>
-            </div>
         </header>
 
-        <main class="max-w-6xl mx-auto px-6 pb-24">
-            <div class="flex items-center justify-between mb-8 gap-2">
-                <h2 class="text-xl md:text-2xl font-bold text-slate-800">Suggested Specialists</h2>
-                <div class="h-1 flex-grow mx-4 bg-slate-100 rounded-full hidden md:block"></div>
-                <span id="results-pill"
-                    class="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap flex-shrink-0">Database
-                    Ready</span>
-            </div>
-
-            <!-- DOCTOR GRID -->
-            <div id="doctorGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Cards injected here -->
-            </div>
-
-            <!-- NO RESULTS STATE -->
-            <div id="no-results" class="hidden text-center py-20">
-                <div
-                    class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
-                    <i class="fas fa-search"></i>
+        <!-- Results Area -->
+        <main class="flex-1 w-full max-w-6xl mx-auto px-6 pb-24">
+            <div class="flex items-center justify-between mb-8 pb-4 border-b border-slate-200">
+                <h2 class="text-xl font-bold tracking-tight text-slate-800">Suggested Specialists</h2>
+                <div id="results-pill"
+                    class="hidden md:flex items-center text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+                    Database Ready
                 </div>
-                <p class="text-slate-500 font-medium">We couldn't match those keywords to a specialist.</p>
-                <button onclick="showAllDoctors()" class="mt-4 text-blue-600 font-bold underline">Browse all
-                    doctors</button>
+            </div>
+
+            <!-- Doctor Grid -->
+            <div id="doctorGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Cards injected via JS -->
+            </div>
+
+            <!-- No Results -->
+            <div id="no-results"
+                class="hidden flex flex-col items-center justify-center py-20 text-center border-2 border-dashed border-slate-200 rounded-2xl bg-white/50">
+                <div class="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4 text-slate-400">
+                    <i class="fas fa-search text-2xl"></i>
+                </div>
+                <p class="text-slate-500 font-medium">No matches found for those symptoms.</p>
+                <button onclick="showAllDoctors()" class="mt-2 text-sm font-bold text-blue-600 hover:underline">
+                    View all doctors
+                </button>
             </div>
         </main>
     </section>
 
     <!-- DOCTOR LOGIN SECTION -->
-    <section id="login-section" class="hidden fade-in py-20">
-        <div class="max-w-md mx-auto px-6">
-            <div class="bg-white rounded-[2.5rem] p-10 border border-slate-200 shadow-xl text-center">
+    <section id="login-section" class="hidden min-h-screen flex items-center justify-center p-4 bg-slate-50">
+        <div
+            class="w-full max-w-[400px] bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/50 overflow-hidden">
+            <div class="p-8 text-center">
                 <div
-                    class="w-20 h-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                    <i class="fas fa-user-md text-3xl"></i>
+                    class="mx-auto w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-4">
+                    <i class="fas fa-user-md text-xl"></i>
                 </div>
-                <h2 class="text-2xl font-bold mb-2">Doctor Access</h2>
-                <p class="text-slate-500 mb-8 text-sm">Please enter your credentials.</p>
+                <h3 class="font-bold tracking-tight text-2xl text-slate-900">Provider Access</h3>
+                <p class="text-sm text-slate-500 mt-2">Enter your credentials to continue.</p>
+            </div>
 
-                <div class="space-y-4 text-left">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Username</label>
-                        <input type="text" id="login-user" placeholder="e.g. sarah"
-                            class="w-full p-4 rounded-2xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-600 outline-none transition-all">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Password</label>
-                        <input type="password" id="login-pass" placeholder="••••••••"
-                            class="w-full p-4 rounded-2xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-600 outline-none transition-all">
-                    </div>
-                    <button onclick="handleLogin()"
-                        class="w-full py-5 bg-blue-600 text-white rounded-2xl font-bold text-lg hover:bg-blue-700 transition-all shadow-lg shadow-blue-100">
-                        Sign In
-                    </button>
-                    <p class="text-center text-xs text-slate-400 mt-4">Hint: check doctors.json (e.g., sarah/123)</p>
+            <div class="p-8 pt-0 space-y-4">
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase text-slate-400">Username</label>
+                    <input type="text" id="login-user" placeholder="e.g. sarah" autocomplete="off"
+                        class="flex h-11 w-full rounded-lg border border-slate-200 bg-transparent px-3 text-sm placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all">
                 </div>
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase text-slate-400">Password</label>
+                    <input type="password" id="login-pass" placeholder="••••••••" autocomplete="off"
+                        class="flex h-11 w-full rounded-lg border border-slate-200 bg-transparent px-3 text-sm placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all">
+                </div>
+
+                <button onclick="handleLogin()"
+                    class="w-full h-11 inline-flex items-center justify-center rounded-lg bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 shadow-md shadow-blue-200 transition-all">
+                    Sign In
+                </button>
+                <p class="text-center text-xs text-slate-400 pt-2">Demo: sarah / 123 or admin / admin</p>
             </div>
         </div>
     </section>
 
     <!-- DOCTOR DASHBOARD -->
-    <section id="doctor-dashboard" class="hidden fade-in">
+    <section id="doctor-dashboard" class="hidden fade-in min-h-screen bg-slate-50">
         <div class="max-w-6xl mx-auto px-6 py-12">
-            <div class="flex justify-between items-end mb-10">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
                 <div>
-                    <h1 class="text-3xl font-bold text-slate-900" id="doc-dash-title">Welcome back, Dr.</h1>
-                    <p class="text-slate-500">Here are your upcoming matches for today.</p>
+                    <h1 class="text-3xl font-bold text-slate-900 tracking-tight" id="doc-dash-title">Welcome back</h1>
+                    <p class="text-slate-500 mt-1">Here is your appointment schedule for today.</p>
                 </div>
                 <button onclick="logout()"
-                    class="px-6 py-2 border border-slate-200 rounded-xl hover:bg-slate-100 transition-colors text-sm font-bold">Logout</button>
+                    class="px-5 py-2.5 border border-slate-200 bg-white rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition-colors shadow-sm">
+                    Log out
+                </button>
             </div>
 
-            <div class="grid grid-cols-1 gap-6" id="doctor-app-list">
-                <!-- Doctor's specific appointments here -->
+            <div class="grid grid-cols-1 gap-4" id="doctor-app-list">
+                <!-- Appointments injected via JS -->
             </div>
         </div>
     </section>
 
     <!-- ADMIN PANEL -->
-    <section id="admin-section" class="hidden fade-in">
-        <div class="max-w-6xl mx-auto px-6 py-12">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+    <section id="admin-section" class="hidden fade-in min-h-screen bg-slate-50">
+        <div class="max-w-7xl mx-auto px-6 py-12">
+            <div class="flex items-center justify-between mb-8">
                 <div>
-                    <h1 class="text-3xl font-bold text-slate-900">Admin Dashboard</h1>
-                    <p class="text-slate-500">System-wide appointment management.</p>
+                    <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Admin Portal</h1>
+                    <p class="text-slate-500 mt-1">System-wide matching overview.</p>
                 </div>
-                <div class="bg-white px-6 py-3 rounded-2xl border border-slate-200 shadow-sm">
-                    <p class="text-xs font-bold text-slate-400 uppercase">System Status</p>
-                    <p class="text-green-500 font-bold">JSON DB Connected</p>
+                <div class="bg-white border border-slate-200 px-4 py-2 rounded-lg shadow-sm flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                    <span class="text-sm font-semibold text-slate-700">System Online</span>
                 </div>
             </div>
 
-            <div class="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead>
-                            <tr class="bg-slate-50 border-b border-slate-200">
-                                <th class="p-6 text-xs font-bold text-slate-400 uppercase tracking-widest">Patient</th>
-                                <th class="p-6 text-xs font-bold text-slate-400 uppercase tracking-widest">Doctor Match
-                                </th>
-                                <th class="p-6 text-xs font-bold text-slate-400 uppercase tracking-widest">Date & Time
-                                </th>
-                                <th class="p-6 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">
-                                    Actions</th>
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-slate-50 border-b border-slate-200">
+                            <tr>
+                                <th class="h-12 px-6 align-middle font-medium text-slate-500">Patient Name</th>
+                                <th class="h-12 px-6 align-middle font-medium text-slate-500">Assigned Doctor</th>
+                                <th class="h-12 px-6 align-middle font-medium text-slate-500">Time Slot</th>
+                                <th class="h-12 px-6 text-right align-middle font-medium text-slate-500">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="admin-table-body"></tbody>
+                        <tbody id="admin-table-body" class="divide-y divide-slate-100">
+                            <!-- JS Rows -->
+                        </tbody>
                     </table>
                 </div>
-                <div id="admin-empty" class="py-32 text-center text-slate-400 hidden">
-                    <p class="text-lg">No system-wide records.</p>
+                <div id="admin-empty" class="hidden py-12 text-center text-slate-400">
+                    No active records found.
                 </div>
             </div>
         </div>
     </section>
 
     <!-- BOOKING MODAL -->
-    <div id="bookingModal" class="fixed inset-0 z-[100] hidden">
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModal()"></div>
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-4">
-            <div class="bg-white rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in duration-300">
-                <div class="p-8 bg-blue-600 text-white">
-                    <h3 class="text-2xl font-bold mb-1" id="modal-doc-name"></h3>
-                    <p class="text-blue-100 text-sm" id="modal-doc-specialty"></p>
+    <div id="bookingModal" class="fixed inset-0 z-50 hidden">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
+
+        <!-- Modal Content -->
+        <div
+            class="fixed left-[50%] top-[50%] z-50 w-full max-w-[500px] translate-x-[-50%] translate-y-[-50%] bg-white shadow-2xl rounded-3xl border border-slate-100 animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+
+            <!-- Header -->
+            <div class="p-6 border-b border-slate-100 bg-slate-50/50 rounded-t-3xl">
+                <h2 class="text-xl font-bold text-slate-900" id="modal-doc-name">Dr. Name</h2>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="text-sm font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded"
+                        id="modal-doc-specialty">Specialty</span>
+                    <span class="text-xs text-slate-400">• New Appointment</span>
                 </div>
-                <div class="p-8 space-y-5">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Patient Name</label>
-                        <input type="text" id="form-name"
-                            class="w-full p-4 rounded-2xl border border-slate-200 outline-none">
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <input type="date" id="form-date" class="p-4 rounded-2xl border border-slate-200">
-                        <input type="time" id="form-time" class="p-4 rounded-2xl border border-slate-200">
-                    </div>
-                    <button onclick="submitBooking()"
-                        class="w-full py-5 bg-blue-600 text-white rounded-2xl font-bold">Confirm Match</button>
+            </div>
+
+            <!-- Scrollable Body -->
+            <div class="p-6 overflow-y-auto custom-scrollbar space-y-6">
+
+                <!-- 1. Patient Name -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wide">Patient Name</label>
+                    <input id="form-name"
+                        class="flex h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-base placeholder:text-slate-300 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
+                        placeholder="Enter full name" />
                 </div>
+
+                <!-- 2. Date Selection (Horizontal Scroll) -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wide">Select Date</label>
+                    <div class="relative">
+                        <!-- Gradient Fade for visual cue -->
+                        <div
+                            class="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none z-10">
+                        </div>
+
+                        <div id="date-picker-container" class="flex gap-3 overflow-x-auto no-scrollbar pb-2 snap-x">
+                            <!-- Dates injected by JS -->
+                        </div>
+                    </div>
+                    <input type="hidden" id="selected-date-value">
+                </div>
+
+                <!-- 3. Time Selection (Grid) -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wide">Available Time</label>
+                    <div id="time-picker-container" class="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                        <!-- Times injected by JS -->
+                    </div>
+                    <input type="hidden" id="selected-time-value">
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="p-6 border-t border-slate-100 bg-slate-50/50 rounded-b-3xl flex gap-3">
+                <button onclick="closeModal()"
+                    class="flex-1 h-12 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-600 hover:bg-slate-100 transition-colors">
+                    Cancel
+                </button>
+                <button onclick="submitBooking()"
+                    class="flex-1 h-12 rounded-xl bg-blue-600 text-sm font-bold text-white shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all">
+                    Confirm Match
+                </button>
             </div>
         </div>
     </div>
 
     <!-- TOAST -->
-    <div id="toast"
-        class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[200] bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-3 transition-all duration-500 opacity-0 translate-y-10 pointer-events-none">
-        <i class="fas fa-check-circle text-blue-400"></i>
-        <span id="toast-msg">Success!</span>
+    <div id="toast" class="fixed bottom-6 right-6 z-[100] hidden translate-y-10 opacity-0 transition-all duration-300">
+        <div
+            class="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-6 py-4 shadow-xl shadow-slate-200">
+            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+                <i class="fas fa-check text-sm"></i>
+            </div>
+            <div>
+                <h4 class="text-sm font-bold text-slate-900">Success</h4>
+                <p class="text-xs text-slate-500" id="toast-msg">Booking confirmed.</p>
+            </div>
+        </div>
     </div>
 
     <!-- Main Application Logic -->
