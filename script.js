@@ -302,10 +302,32 @@ function renderDoctorDashboard() {
                         <p class="text-xs text-slate-400">Scheduled: ${app.date} at ${app.time}</p>
                     </div>
                 </div>
-                <button class="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl">View Record</button>
+                <div class="flex gap-2">
+                    <button onclick="viewPatientRecord('${app.patient}')" class="px-4 py-2 border border-slate-200 text-slate-600 text-xs font-bold rounded-xl hover:bg-slate-50 transition-all">View Record</button>
+                    <button onclick="resolveAppointment(${app.id})" class="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700 transition-all shadow-md shadow-blue-100">Resolve</button>
+                </div>
             </div>
         `;
     });
+}
+
+function viewPatientRecord(name) {
+    showToast(`Opening record for ${name}...`);
+    // In a real app, this would open a detailed patient history modal
+}
+
+async function resolveAppointment(id) {
+    if (!confirm("Mark this appointment as resolved? This will remove it from your active list.")) return;
+
+    const { error } = await db.from('appointments').delete().eq('id', id);
+    if (error) {
+        showToast("Error resolving appointment");
+        return;
+    }
+
+    showToast("Appointment resolved and archived.");
+    await initDatabase();
+    renderDoctorDashboard();
 }
 
 function renderAdminTable() {
@@ -347,10 +369,121 @@ async function cancelApp(id) {
 }
 
 // --- BOOKING ---
+// --- NEW BOOKING LOGIC ---
+
+// 1. Generate Future Dates (Next 14 days)
+function renderDateOptions() {
+    const container = document.getElementById('date-picker-container');
+    container.innerHTML = '';
+
+    const today = new Date();
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    // Start from tomorrow (i=1)
+    for (let i = 1; i <= 14; i++) {
+        const futureDate = new Date(today);
+        futureDate.setDate(today.getDate() + i);
+
+        const dateStr = futureDate.toISOString().split('T')[0]; // YYYY-MM-DD
+        const dayName = days[futureDate.getDay()];
+        const dayNum = futureDate.getDate();
+
+        const btn = document.createElement('button');
+        btn.className = `min-w-[70px] h-[80px] rounded-2xl border border-slate-200 flex flex-col items-center justify-center gap-1 transition-all snap-start hover:border-blue-400 focus:outline-none date-card`;
+        btn.onclick = () => selectDate(btn, dateStr);
+
+        btn.innerHTML = `
+            <span class="text-xs font-medium text-slate-400 pointer-events-none">${dayName}</span>
+            <span class="text-xl font-bold text-slate-800 pointer-events-none">${dayNum}</span>
+        `;
+
+        container.appendChild(btn);
+    }
+}
+
+// 2. Generate Time Slots
+function renderTimeOptions() {
+    const container = document.getElementById('time-picker-container');
+    container.innerHTML = '';
+
+    const selectedDate = document.getElementById('selected-date-value').value;
+    const selectedDoctor = state.selectedDoctor;
+
+    // Simple business hours array
+    const times = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30"];
+
+    // Find already booked slots for this doctor on this date
+    const bookedSlots = state.appointments
+        .filter(app => app.doctor === selectedDoctor.name && app.date === selectedDate)
+        .map(app => app.time);
+
+    times.forEach(time => {
+        const isBooked = bookedSlots.includes(time);
+        const btn = document.createElement('button');
+
+        if (isBooked) {
+            btn.className = `py-2 rounded-xl border border-slate-100 bg-slate-50 text-sm font-semibold text-slate-300 cursor-not-allowed time-card`;
+            btn.disabled = true;
+            btn.innerHTML = `${time} <span class="text-[10px] block opacity-60">Booked</span>`;
+        } else {
+            btn.className = `py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:border-blue-400 hover:text-blue-600 transition-all cursor-pointer time-card bg-white`;
+            btn.innerText = time;
+            btn.onclick = () => selectTime(btn, time);
+        }
+
+        container.appendChild(btn);
+    });
+}
+
+// 3. Selection Handlers
+function selectDate(el, value) {
+    // Reset all
+    document.querySelectorAll('.date-card').forEach(c => {
+        c.className = "min-w-[70px] h-[80px] rounded-2xl border border-slate-200 flex flex-col items-center justify-center gap-1 transition-all snap-start hover:border-blue-400 cursor-pointer date-card bg-white";
+        c.querySelector('span:first-child').className = "text-xs font-medium text-slate-400";
+        c.querySelector('span:last-child').className = "text-xl font-bold text-slate-800";
+    });
+
+    // Set Active
+    el.className = "min-w-[70px] h-[80px] rounded-2xl border-2 border-blue-600 bg-blue-50 flex flex-col items-center justify-center gap-1 transition-all snap-start cursor-pointer date-card shadow-sm";
+    el.querySelector('span:first-child').className = "text-xs font-bold text-blue-600";
+    el.querySelector('span:last-child').className = "text-xl font-bold text-blue-700";
+
+    document.getElementById('selected-date-value').value = value;
+
+    // Re-render time options because availability depends on the date
+    renderTimeOptions();
+}
+
+function selectTime(el, value) {
+    // Reset all
+    document.querySelectorAll('.time-card').forEach(c => {
+        c.className = "py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:border-blue-400 hover:text-blue-600 transition-all cursor-pointer time-card bg-white";
+    });
+
+    // Set Active
+    el.className = "py-2 rounded-xl border-2 border-blue-600 bg-blue-600 text-white text-sm font-bold shadow-md shadow-blue-200 transition-all cursor-pointer time-card";
+
+    document.getElementById('selected-time-value').value = value;
+}
+
+// --- UPDATED BOOKING FUNCTIONS ---
+
 function openModal(id) {
     state.selectedDoctor = state.doctors.find(d => d.id === id);
     document.getElementById('modal-doc-name').innerText = state.selectedDoctor.name;
     document.getElementById('modal-doc-specialty').innerText = state.selectedDoctor.specialty;
+
+    // Clear previous inputs
+    document.getElementById('form-name').value = '';
+    document.getElementById('selected-date-value').value = '';
+    document.getElementById('selected-time-value').value = '';
+
+    // Render the pickers
+    renderDateOptions();
+    renderTimeOptions();
+
     document.getElementById('bookingModal').classList.remove('hidden');
 }
 
@@ -358,12 +491,13 @@ function closeModal() { document.getElementById('bookingModal').classList.add('h
 
 async function submitBooking() {
     const name = document.getElementById('form-name').value;
-    const date = document.getElementById('form-date').value;
-    const time = document.getElementById('form-time').value;
+    // Get values from hidden inputs
+    const date = document.getElementById('selected-date-value').value;
+    const time = document.getElementById('selected-time-value').value;
 
-    if (!name || !date || !time) return showToast("Please fill all fields");
+    if (!name || !date || !time) return showToast("Please select a date, time, and enter name");
 
-    // 1. Insert into Supabase
+    // Insert into Supabase
     const { error } = await db.from('appointments').insert([{
         patient_name: name,
         doctor_name: state.selectedDoctor.name,
@@ -378,25 +512,24 @@ async function submitBooking() {
         return;
     }
 
-    // 2. Success UI
     showToast("Match Confirmed! Doctor notified.");
     closeModal();
-    document.getElementById('form-name').value = '';
-    document.getElementById('form-date').value = '';
-    document.getElementById('form-time').value = '';
-
-    // 3. Refresh Data so Admin/Doctor dashboards update
     await initDatabase();
 }
 
 function showToast(msg) {
     const toast = document.getElementById('toast');
     document.getElementById('toast-msg').innerText = msg;
-    toast.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
-    toast.classList.add('opacity-100', 'translate-y-0');
+    toast.classList.remove('hidden');
     setTimeout(() => {
-        toast.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
+        toast.classList.add('opacity-100', 'translate-y-0');
+    }, 10);
+
+    setTimeout(() => {
         toast.classList.remove('opacity-100', 'translate-y-0');
+        setTimeout(() => {
+            toast.classList.add('hidden');
+        }, 300);
     }, 3000);
 }
 
