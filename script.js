@@ -1,5 +1,5 @@
 // --- CONFIGURATION ---
-const GEMINI_API_KEY = "AIzaSyCUfo1vZdg1S2bAo1wDwGgvV32Z8ENMpgM";
+// GEMINI_API_KEY is now handled securely via Netlify Functions proxy
 const SUPABASE_URL = "https://tnlfpyeamaskozvxrkqm.supabase.co";
 const SUPABASE_KEY = "sb_publishable_17fMmELPFPSlERnCdIn8aw_HfE6Uz4g";
 
@@ -42,7 +42,7 @@ async function initDatabase() {
 
         // Update State
         state.doctors = (doctorsData && doctorsData.length > 0) ? doctorsData : fallbackDoctors;
-        
+
         // Map Supabase columns (patient_name) to UI properties (patient)
         state.appointments = appData.map(a => ({
             id: a.id,
@@ -65,13 +65,13 @@ async function initDatabase() {
 }
 
 // --- EVENT LISTENERS ---
-if(symptomInput) {
+if (symptomInput) {
     symptomInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') triggerSearch();
     });
-    
+
     symptomInput.addEventListener('input', (e) => {
-         if(!aiStatusText.innerText.includes("Transcribing")) {
+        if (!aiStatusText.innerText.includes("Transcribing")) {
             aiStatus.classList.add('opacity-0');
         }
     });
@@ -86,7 +86,7 @@ function triggerSearch() {
 function typeWriter(text, i = 0) {
     if (i < text.length) {
         symptomInput.value += text.charAt(i);
-        setTimeout(() => typeWriter(text, i + 1), 50); 
+        setTimeout(() => typeWriter(text, i + 1), 50);
     } else {
         triggerSearch();
         aiStatus.classList.add('opacity-0');
@@ -153,7 +153,7 @@ async function performSmartSearch(sentence) {
     console.log("🚀 Sending to Gemini 2.5:", query);
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        const response = await fetch(`/.netlify/functions/gemini-proxy`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
@@ -163,12 +163,12 @@ async function performSmartSearch(sentence) {
 
         if (!response.ok || data.error) {
             console.warn("⚠️ API Error (Likely Quota Limit):", data.error?.message);
-            throw new Error("API_FAIL"); 
+            throw new Error("API_FAIL");
         }
 
         let responseText = data.candidates[0].content.parts[0].text;
         console.log("🤖 AI Response:", responseText);
-        
+
         responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
         const matchedIds = JSON.parse(responseText);
 
@@ -189,8 +189,8 @@ async function performSmartSearch(sentence) {
 }
 
 function fallbackLocalSearch(query) {
-    const results = state.doctors.filter(doc => 
-        doc.specialty.toLowerCase().includes(query) || 
+    const results = state.doctors.filter(doc =>
+        doc.specialty.toLowerCase().includes(query) ||
         doc.keywords.some(k => query.includes(k))
     );
     renderDoctorCards(results);
@@ -202,16 +202,16 @@ function updateStatusPill(count) {
     const noResults = document.getElementById('no-results');
     const grid = document.getElementById('doctorGrid');
 
-    if(count === 0) {
+    if (count === 0) {
         grid.classList.add('hidden');
         noResults.classList.remove('hidden');
         pill.innerText = "No Matches";
-        pill.className = "bg-slate-200 text-slate-500 text-xs font-bold px-3 py-1 rounded-full";
+        pill.className = "bg-slate-200 text-slate-500 text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap flex-shrink-0";
     } else {
         grid.classList.remove('hidden');
         noResults.classList.add('hidden');
         pill.innerText = `Found ${count} Specialist${count > 1 ? 's' : ''}`;
-        pill.className = "bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse";
+        pill.className = "bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse whitespace-nowrap flex-shrink-0";
     }
 }
 
@@ -221,7 +221,7 @@ function showAllDoctors() {
     document.getElementById('doctorGrid').classList.remove('hidden');
     document.getElementById('no-results').classList.add('hidden');
     document.getElementById('results-pill').innerText = "Showing All";
-    document.getElementById('results-pill').className = "bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full";
+    document.getElementById('results-pill').className = "bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap flex-shrink-0";
 }
 
 function renderDoctorCards(list) {
@@ -239,7 +239,7 @@ function renderDoctorCards(list) {
                 <h3 class="text-lg font-bold text-slate-800">${doc.name}</h3>
                 <p class="text-blue-600 text-xs font-bold uppercase mb-4 tracking-wide">${doc.specialty}</p>
                 <div class="flex gap-2 mb-6 flex-wrap">
-                    ${doc.keywords.slice(0,3).map(k => `<span class="bg-slate-50 text-slate-500 text-[10px] px-2 py-1 rounded-lg border border-slate-100 uppercase tracking-wide">${k}</span>`).join('')}
+                    ${doc.keywords.slice(0, 3).map(k => `<span class="bg-slate-50 text-slate-500 text-[10px] px-2 py-1 rounded-lg border border-slate-100 uppercase tracking-wide">${k}</span>`).join('')}
                 </div>
                 <button onclick="openModal(${doc.id})" class="mt-auto w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-blue-600 transition-all shadow-lg shadow-slate-200">Request Appointment</button>
             </div>
@@ -259,12 +259,12 @@ function handleLogin() {
         state.currentUser = matchedDoctor;
         showToast(`Welcome back, ${matchedDoctor.name}`);
         navigateTo('/dashboard');
-        
+
         document.getElementById('login-user').value = '';
         document.getElementById('login-pass').value = '';
     } else if (user === 'admin' && pass === 'admin123') {
         showToast("Admin access granted");
-        state.currentUser = { name: "Admin", role: "admin" }; 
+        state.currentUser = { name: "Admin", role: "admin" };
         navigateTo('/admin');
     } else {
         showToast("Invalid credentials");
@@ -282,7 +282,7 @@ function renderDoctorDashboard() {
     if (!state.currentUser) return;
     const list = document.getElementById('doctor-app-list');
     document.getElementById('doc-dash-title').innerText = `Welcome back, ${state.currentUser.name}`;
-    
+
     // Filter appointments for the logged-in doctor
     const myApps = state.appointments.filter(a => a.doctor === state.currentUser.name);
     list.innerHTML = '';
@@ -331,7 +331,7 @@ function renderAdminTable() {
 async function cancelApp(id) {
     // 1. Delete from Supabase
     const { error } = await db.from('appointments').delete().eq('id', id);
-    
+
     if (error) {
         console.error("Delete failed:", error);
         showToast("Error removing appointment");
@@ -340,7 +340,7 @@ async function cancelApp(id) {
 
     // 2. Refresh local data
     await initDatabase(); // Re-fetch to keep UI in sync
-    
+
     // 3. Re-render Admin Table
     renderAdminTable();
     showToast("Appointment Removed");
@@ -361,7 +361,7 @@ async function submitBooking() {
     const date = document.getElementById('form-date').value;
     const time = document.getElementById('form-time').value;
 
-    if(!name || !date || !time) return showToast("Please fill all fields");
+    if (!name || !date || !time) return showToast("Please fill all fields");
 
     // 1. Insert into Supabase
     const { error } = await db.from('appointments').insert([{
@@ -424,7 +424,7 @@ function navigateTo(url) {
 
 function router() {
     const path = window.location.pathname;
-    
+
     // Auth Guard
     if (path === '/admin' && (!state.currentUser || state.currentUser.role !== 'admin')) {
         if (!state.currentUser) {
@@ -432,7 +432,7 @@ function router() {
             return navigateTo('/doctor');
         }
     }
-    
+
     if (path === '/dashboard' && !state.currentUser) {
         return navigateTo('/doctor');
     }
@@ -441,7 +441,7 @@ function router() {
 
     const targetId = routes[path] || 'patient-section';
     const targetSection = document.getElementById(targetId);
-    
+
     if (targetSection) targetSection.classList.remove('hidden');
 
     updateNav(path);
@@ -453,7 +453,7 @@ function router() {
 function updateNav(path) {
     ['patient', 'doctor', 'admin'].forEach(name => {
         const btn = document.getElementById(`nav-${name}`);
-        if(btn) btn.className = "nav-link text-sm font-semibold px-4 py-2 rounded-lg transition-all text-slate-500 hover:bg-slate-100";
+        if (btn) btn.className = "nav-link text-sm font-semibold px-4 py-2 rounded-lg transition-all text-slate-500 hover:bg-slate-100";
     });
 
     let activeName = 'patient';
@@ -461,7 +461,7 @@ function updateNav(path) {
     if (path.includes('admin')) activeName = 'admin';
 
     const activeBtn = document.getElementById(`nav-${activeName}`);
-    if(activeBtn) activeBtn.className = "nav-link text-sm font-semibold px-4 py-2 rounded-lg transition-all text-blue-600 bg-blue-50";
+    if (activeBtn) activeBtn.className = "nav-link text-sm font-semibold px-4 py-2 rounded-lg transition-all text-blue-600 bg-blue-50";
 }
 
 window.addEventListener('popstate', router);
