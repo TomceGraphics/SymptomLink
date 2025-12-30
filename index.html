@@ -93,7 +93,7 @@
                     class="group relative flex flex-col rounded-3xl border border-slate-200 bg-white shadow-xl transition-all duration-300 focus-within:border-blue-400">
 
                     <!-- Text Area -->
-                    <textarea id="symptomInput" placeholder="Describe your symptoms (e.g., sharp pain in lower back)..."
+                    <textarea id="symptomInput" placeholder="Tell me how you’re feeling..."
                         class="min-h-[80px] w-full resize-none bg-transparent px-6 py-5 text-base text-slate-700 placeholder:text-slate-400 focus:outline-none custom-scrollbar"
                         oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea>
 
@@ -178,7 +178,7 @@
 
                         <!-- RIGHT ACTION -->
                         <button onclick="triggerSearch()"
-                            class="h-10 w-10 inline-flex items-center justify-center rounded-xl bg-slate-900 text-white shadow-md hover:bg-blue-600 transition-all duration-150 ease-out active:scale-95">
+                            class="h-10 w-10 inline-flex items-center justify-center rounded-xl bg-blue-500 text-white shadow-md hover:bg-blue-600 transition-all duration-150 ease-out active:scale-95">
                             <i class="fa-solid fa-arrow-up"></i>
                         </button>
 
@@ -204,7 +204,7 @@
                 <h2 class="text-xl font-bold tracking-tight text-slate-800">Suggested Specialists</h2>
                 <div id="results-pill"
                     class="hidden md:flex items-center text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
-                    Database Ready
+                    Showing all specialists
                 </div>
             </div>
 
