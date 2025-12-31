@@ -1,5 +1,5 @@
 // --- CONFIGURATION ---
-const GEMINI_API_KEY = "AIzaSyCNzU3YTTebV0vXcE09d2RLohBN03pxZQA";
+const GEMINI_API_KEY = "AIzaSyCU3llxhdFs4YjIiEqD-MqthqA2jyZNJ28";
 const SUPABASE_URL = "https://tnlfpyeamaskozvxrkqm.supabase.co";
 const SUPABASE_KEY = "sb_publishable_17fMmELPFPSlERnCdIn8aw_HfE6Uz4g";
 
@@ -344,6 +344,16 @@ function renderDoctorDashboard() {
     const myApps = state.appointments.filter(a => a.doctor === state.currentUser.name);
     list.innerHTML = '';
 
+    // Calculate Stats
+    const totalApps = myApps.length;
+    const todayApps = myApps.filter(a => a.date === new Date().toISOString().split('T')[0]).length;
+
+    document.getElementById('stat-total').innerText = totalApps;
+    document.getElementById('stat-waiting').innerText = totalApps; // Same for now
+    document.getElementById('stat-today').innerText = todayApps;
+
+    list.innerHTML = '';
+
     if (myApps.length === 0) {
         list.innerHTML = '<div class="py-20 text-center text-slate-400 bg-white rounded-3xl border border-slate-100">No appointments yet.</div>';
         return;
@@ -360,7 +370,7 @@ function renderDoctorDashboard() {
                     </div>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="viewPatientRecord('${app.patient}')" class="px-4 py-2 border border-slate-200 text-slate-600 text-xs font-bold rounded-xl hover:bg-slate-50 transition-all">View Record</button>
+                    <button onclick="openPatientModal('${app.patient}')" class="px-4 py-2 border border-slate-200 text-slate-600 text-xs font-bold rounded-xl hover:bg-slate-50 transition-all">View Record</button>
                     <button onclick="resolveAppointment(${app.id})" class="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700 transition-all shadow-md">Resolve</button>
                 </div>
             </div>
@@ -368,9 +378,49 @@ function renderDoctorDashboard() {
     });
 }
 
-function viewPatientRecord(name) {
-    showToast(`Opening record for ${name}...`);
-    // In a real app, this would open a detailed patient history modal
+function openPatientModal(name) {
+    const modal = document.getElementById('patientModal');
+    document.getElementById('report-patient-name').innerText = name;
+
+    // Reset fields
+    document.getElementById('report-notes').value = '';
+    document.getElementById('report-diagnosis').value = '';
+    document.getElementById('report-rx').value = '';
+
+    // Load from localStorage if exists
+    const savedData = localStorage.getItem(`report_${name}`);
+    if (savedData) {
+        const data = JSON.parse(savedData);
+        document.getElementById('report-notes').value = data.notes || '';
+        document.getElementById('report-diagnosis').value = data.diagnosis || '';
+        document.getElementById('report-rx').value = data.rx || '';
+    }
+
+    modal.classList.remove('hidden');
+}
+
+function closePatientModal() {
+    document.getElementById('patientModal').classList.add('hidden');
+}
+
+function savePatientReport() {
+    const name = document.getElementById('report-patient-name').innerText;
+    const notes = document.getElementById('report-notes').value;
+    const diagnosis = document.getElementById('report-diagnosis').value;
+    const rx = document.getElementById('report-rx').value;
+
+    const reportData = {
+        notes,
+        diagnosis,
+        rx,
+        timestamp: new Date().toISOString()
+    };
+
+    // Save to localStorage for demo persistence
+    localStorage.setItem(`report_${name}`, JSON.stringify(reportData));
+
+    showToast("Report saved successfully");
+    closePatientModal();
 }
 
 async function resolveAppointment(id) {

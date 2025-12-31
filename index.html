@@ -274,6 +274,39 @@
                 </button>
             </div>
 
+            <!-- Stats Row -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wide">Total Appointments</p>
+                        <h3 class="text-2xl font-bold text-slate-900" id="stat-total">0</h3>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center text-xl">
+                        <i class="fas fa-user-clock"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wide">Patients Waiting</p>
+                        <h3 class="text-2xl font-bold text-slate-900" id="stat-waiting">0</h3>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-green-50 text-green-600 flex items-center justify-center text-xl">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wide">Today's Schedule</p>
+                        <h3 class="text-2xl font-bold text-slate-900" id="stat-today">0</h3>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 gap-4" id="doctor-app-list">
                 <!-- Appointments injected via JS -->
             </div>
@@ -383,6 +416,140 @@
                     class="flex-1 h-12 rounded-xl bg-blue-600 text-sm font-bold text-white hover:bg-blue-700 active:scale-95 transition-all">
                     Confirm Match
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PATIENT REPORT MODAL -->
+    <div id="patientModal" class="fixed inset-0 z-50 hidden">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onclick="closePatientModal()">
+        </div>
+
+        <!-- Modal Content -->
+        <div
+            class="fixed left-[50%] top-[50%] z-50 w-full max-w-[800px] translate-x-[-50%] translate-y-[-50%] bg-white shadow-2xl rounded-3xl border border-slate-100 animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+
+            <!-- Header -->
+            <div class="p-6 border-b border-slate-100 bg-slate-50/50 rounded-t-3xl flex justify-between items-start">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900" id="report-patient-name">Patient Name</h2>
+                    <div class="flex items-center gap-3 mt-2">
+                        <span class="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-lg">
+                            <i class="fas fa-venus-mars mr-1"></i> 34 yrs • Male
+                        </span>
+                        <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg">
+                            <i class="fas fa-file-medical mr-1"></i> ID: #8823
+                        </span>
+                    </div>
+                </div>
+                <button onclick="closePatientModal()"
+                    class="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-slate-200 text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Scrollable Body -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-0">
+                <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100 h-full">
+
+                    <!-- Left Col: History -->
+                    <div class="p-6 bg-slate-50/30 space-y-6">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">Medical Overview
+                            </h4>
+                            <div class="space-y-3">
+                                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                                    <span class="text-xs font-bold text-slate-700 block mb-1">Allergies</span>
+                                    <div class="flex flex-wrap gap-1">
+                                        <span
+                                            class="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded">Penicillin</span>
+                                        <span
+                                            class="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded">Peanuts</span>
+                                    </div>
+                                </div>
+                                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                                    <span class="text-xs font-bold text-slate-700 block mb-1">Chronic Conditions</span>
+                                    <span
+                                        class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">Asthma</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">Vitals (Last
+                                Visit)</h4>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="bg-white p-3 rounded-xl border border-slate-200 text-center">
+                                    <span class="block text-[10px] text-slate-400 font-bold uppercase">BP</span>
+                                    <span class="block text-sm font-bold text-slate-800">120/80</span>
+                                </div>
+                                <div class="bg-white p-3 rounded-xl border border-slate-200 text-center">
+                                    <span class="block text-[10px] text-slate-400 font-bold uppercase">HR</span>
+                                    <span class="block text-sm font-bold text-slate-800">72 bpm</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Col: Current Visit -->
+                    <div class="col-span-2 p-6 space-y-6">
+                        <!-- Symptoms -->
+                        <div>
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2 block">Reported
+                                Symptoms</label>
+                            <div class="p-4 bg-blue-50/50 rounded-xl border border-blue-100 text-sm text-blue-800">
+                                <i class="fas fa-quote-left text-blue-300 mr-2"></i>
+                                <span id="report-symptoms">Patient reported severe migraine and sensitivity to light
+                                    starting this morning.</span>
+                            </div>
+                        </div>
+
+                        <!-- Doctor Notes -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wide">Clinical
+                                Notes</label>
+                            <textarea id="report-notes"
+                                class="w-full h-32 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 transition-all resize-none"
+                                placeholder="Enter your observations, diagnosis, and treatment plan..."></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label
+                                    class="text-xs font-bold text-slate-400 uppercase tracking-wide">Diagnosis</label>
+                                <input type="text" id="report-diagnosis"
+                                    class="w-full h-10 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:border-blue-500 transition-all"
+                                    placeholder="e.g. Acute Migraine">
+                            </div>
+                            <div class="space-y-2">
+                                <label
+                                    class="text-xs font-bold text-slate-400 uppercase tracking-wide">Prescription</label>
+                                <input type="text" id="report-rx"
+                                    class="w-full h-10 rounded-lg border border-slate-200 px-3 text-sm focus:outline-none focus:border-blue-500 transition-all"
+                                    placeholder="e.g. Sumatriptan 50mg">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="p-6 border-t border-slate-100 bg-slate-50/50 rounded-b-3xl flex justify-between items-center">
+                <button onclick="window.print()"
+                    class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors flex items-center gap-2">
+                    <i class="fas fa-print"></i> Print Record
+                </button>
+                <div class="flex gap-3">
+                    <button onclick="closePatientModal()"
+                        class="px-6 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-600 hover:bg-slate-100 transition-colors">
+                        Close
+                    </button>
+                    <button onclick="savePatientReport()"
+                        class="px-6 py-2.5 rounded-xl bg-blue-600 text-sm font-bold text-white hover:bg-blue-700 active:scale-95 transition-all shadow-md">
+                        Save Report
+                    </button>
+                </div>
             </div>
         </div>
     </div>
