@@ -1,8 +1,11 @@
 # SymptomLink (DocMatch) 🩺
 
+> [!IMPORTANT]
+> **Prototype Status**: This project is a technical exploration/prototype. Some features like Voice/Image input are **simulated** for demonstration purposes.
+
 **Bridging the Cognitive Gap in Healthcare.**
 
-SymptomLink (internally known as DocMatch) is a technical exploration of removing the "Specialization Barrier" in healthcare. It allows patients to describe symptoms in natural language—via text, voice, or image—and uses an AI-driven Tokenizer Engine to map those human experiences directly to the most appropriate medical specialists.
+SymptomLink (internally known as DocMatch) is a technical exploration of removing the "Specialization Barrier" in healthcare. It allows patients to describe symptoms in natural language and uses an AI-driven Tokenizer Engine to map those human experiences directly to the most appropriate medical specialists.
 
 ---
 
@@ -12,18 +15,21 @@ SymptomLink (internally known as DocMatch) is a technical exploration of removin
 
 ## 🛠️ Features
 
-- **Multimodal Input**: Supports natural language descriptions of symptoms.
-- **AI-Powered Matching**: Uses a Gemini-based Tokenizer Engine to analyze symptoms and match them to specialist keywords.
+- **Simulated Multimodal Input**: Supports natural language descriptions. Voice and Image inputs are currently **simulated** (mocked latency and response) to demonstrate the UX flow.
+- **AI**: Uses Google's Gemini 2.5 Flash API for natural language processing and triage.
+    - *Fallback Mode*: If the API key is missing or quota is hit, the system gracefully falls back to a local keyword matching algorithm.
 - **Seamless Booking**: Direct appointment requests once a match is found.
 - **Doctor & Admin Dashboards**: Integrated management for healthcare providers and administrators.
-- **Supabase Integration**: Real-time database for appointments and doctor records with local fallback support.
+- **Supabase Support**: Built to work with Supabase for persistent storage.
+    - *Offline Mode*: Includes a robust JSON fallback system, allowing the app to run entirely locally without a backend connection for testing.
 
 ## 🏗️ Architecture
 
 The system follows a modern, lightweight architecture designed for speed and accessibility:
+
 1. **Frontend**: Vanilla JS + Tailwind CSS (via CDN) for a premium, responsive UI.
 2. **Logic Layer**: Client-side routing and state management.
-3. **AI Layer**: Gemini 1.5 Flash API for natural language processing and triage.
+3. **AI Layer**: Gemini 2.5 Flash API for natural language processing and triage.
 4. **Data Layer**: Supabase for persistent storage, with JSON fallbacks for offline resilience.
 
 ## 🌐 Deployment
