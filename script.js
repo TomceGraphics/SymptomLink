@@ -1,7 +1,7 @@
 // --- CONFIGURATION ---
-const GEMINI_API_KEY = "AIzaSyCU3llxhdFs4YjIiEqD-MqthqA2jyZNJ28";
-const SUPABASE_URL = "https://tnlfpyeamaskozvxrkqm.supabase.co";
-const SUPABASE_KEY = "sb_publishable_17fMmELPFPSlERnCdIn8aw_HfE6Uz4g";
+const GEMINI_API_KEY = "";
+const SUPABASE_URL = "";
+const SUPABASE_KEY = "";
 
 // Initialize Supabase Client (No build tool needed)
 const { createClient } = supabase;
@@ -20,6 +20,7 @@ let state = {
     selectedDoctor: null,
     searchMode: 'ai' // 'ai' or 'keyword'
 };
+
 
 // --- DATABASE LOADER (Supabase + Fallback) ---
 async function initDatabase() {
