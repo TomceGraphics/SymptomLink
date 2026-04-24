@@ -209,25 +209,53 @@ async function performSmartSearch(sentence) {
         Do not output markdown, explanations, or code blocks. Just the raw JSON array.
     `;
 
-    console.log("🚀 Sending to Gemini 2.5:", query);
-
-    try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    const callAI = async (model) => {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
         });
-
         const data = await response.json();
+        if (!response.ok || data.error) throw new Error(data.error?.message || "API_FAIL");
+        return data.candidates[0].content.parts[0].text;
+    };
 
-        if (!response.ok || data.error) {
-            console.warn("⚠️ API Error (Likely Quota Limit):", data.error?.message);
-            throw new Error("API_FAIL");
+    try {
+        console.log("🚀 Attempting Primary AI (Gemini 2.5 Flash)...");
+        let responseText = await callAI("gemini-2.5-flash");
+        processAIResults(responseText);
+
+    } catch (error) {
+        console.warn("⚠️ Primary AI Error:", error.message);
+        
+        try {
+            aiStatusText.innerText = "Overload: Switching to Gemma 4...";
+            console.log("🔄 Attempting Secondary AI (Gemma 4 31B)...");
+            let responseText = await callAI("gemma-4-31b");
+            processAIResults(responseText);
+
+        } catch (error2) {
+            console.error("❌ All AI Models Overloaded:", error2.message);
+            aiStatus.classList.add('opacity-0');
+            
+            // Final Fallback: Ask user to switch to Keyword Mode
+            showToast("We are currently experiencing high traffic on our AI servers. Would you like to switch to Keyword Match?", {
+                type: 'warning',
+                title: 'Service High Demand',
+                showButtons: true,
+                onOk: () => {
+                    selectSearchMode('keyword');
+                    triggerSearch(); // Re-run search with local logic
+                }
+            });
         }
+    } finally {
+        aiStatus.classList.add('opacity-0');
+    }
+}
 
-        let responseText = data.candidates[0].content.parts[0].text;
-        console.log("🤖 AI Response:", responseText);
-
+function processAIResults(responseText) {
+    try {
         responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
         const matchedIds = JSON.parse(responseText);
 
@@ -238,14 +266,12 @@ async function performSmartSearch(sentence) {
         } else {
             updateStatusPill(0);
         }
-
-    } catch (error) {
-        console.log("🔄 Switching to Local Fallback (Quota hit or Error)");
-        fallbackLocalSearch(query);
-    } finally {
-        aiStatus.classList.add('opacity-0');
+    } catch (e) {
+        console.error("Failed to parse AI response:", responseText);
+        updateStatusPill(0);
     }
 }
+
 
 function fallbackLocalSearch(query) {
     const results = state.doctors.filter(doc =>
