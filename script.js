@@ -713,7 +713,8 @@ const routes = {
     '/': 'patient-section',
     '/doctor': 'login-section',
     '/admin': 'admin-section',
-    '/dashboard': 'doctor-dashboard'
+    '/dashboard': 'doctor-dashboard',
+    '/demo': 'doctor-dashboard'
 };
 
 document.addEventListener('click', (e) => {
@@ -730,7 +731,29 @@ function navigateTo(url) {
 }
 
 function router() {
-    const path = window.location.pathname;
+    let path = window.location.pathname;
+
+    if (path === '/demo') {
+        state.currentUser = state.doctors[0] || { name: "Dr. Sarah Chen", username: "sarah", role: "doctor", specialty: "Neurologist" };
+        
+        const today = new Date().toISOString().split('T')[0];
+        
+        state.appointments = [
+            { id: 101, patient: "John Doe", doctor: state.currentUser.name, specialty: state.currentUser.specialty, date: today, time: "09:00" },
+            { id: 102, patient: "Alice Smith", doctor: state.currentUser.name, specialty: state.currentUser.specialty, date: today, time: "10:30" },
+            { id: 103, patient: "Michael Johnson", doctor: state.currentUser.name, specialty: state.currentUser.specialty, date: today, time: "14:00" },
+            { id: 104, patient: "Emily Davis", doctor: state.currentUser.name, specialty: state.currentUser.specialty, date: today, time: "15:30" }
+        ];
+
+        localStorage.setItem(`report_John Doe`, JSON.stringify({ notes: "Patient reported recurring severe headaches over the last week.", diagnosis: "Tension Headache", rx: "Ibuprofen 400mg", timestamp: new Date().toISOString() }));
+        localStorage.setItem(`report_Alice Smith`, JSON.stringify({ notes: "Follow up on migraine symptoms. Sensitivity to light remains.", diagnosis: "Chronic Migraine", rx: "Sumatriptan 50mg", timestamp: new Date().toISOString() }));
+        
+        showToast("Demo Mode Activated");
+        
+        // Internally act as dashboard
+        history.replaceState(null, null, '/dashboard');
+        path = '/dashboard';
+    }
 
     // Auth Guard
     if (path === '/admin' && (!state.currentUser || state.currentUser.role !== 'admin')) {
