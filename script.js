@@ -1,12 +1,15 @@
+import { createClient } from "https://esm.sh/@libsql/client/web";
+
 // --- CONFIGURATION ---
 const GEMINI_API_KEY = "[[GEMINI_API_KEY]]";
-const SUPABASE_URL = "[[SUPABASE_URL]]";
-const SUPABASE_KEY = "[[SUPABASE_KEY]]";
+const TURSO_DATABASE_URL = "[[TURSO_DATABASE_URL]]";
+const TURSO_AUTH_TOKEN = "[[TURSO_AUTH_TOKEN]]";
 
-
-// Initialize Supabase Client (No build tool needed)
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+// Initialize Turso Client
+const db = createClient({
+    url: TURSO_DATABASE_URL,
+    authToken: TURSO_AUTH_TOKEN
+});
 
 // --- DOM ELEMENTS ---
 const symptomInput = document.getElementById('symptomInput');
@@ -23,9 +26,9 @@ let state = {
 };
 
 
-// --- DATABASE LOADER (Supabase + Fallback) ---
+// --- DATABASE LOADER (Turso + Fallback) ---
 async function initDatabase() {
-    console.log("🔄 Connecting to Supabase...");
+    console.log("🔄 Connecting to Turso...");
 
     const fallbackDoctors = [
         { id: 1, name: "Dr. Sarah Chen", username: "sarah", password: "123", specialty: "Neurologist", keywords: ["headache", "migraine", "head", "dizzy", "concussion"], rating: 4.9, img: "https://i.pravatar.cc/150?u=sarah" },
@@ -36,17 +39,20 @@ async function initDatabase() {
 
     try {
         // 1. FETCH DOCTORS
-        const { data: doctorsData, error: docError } = await db.from('doctors').select('*');
-        if (docError) throw docError;
+        const doctorsRes = await db.execute('SELECT * FROM doctors');
+        const doctorsData = doctorsRes.rows.map(r => ({
+            ...r,
+            keywords: typeof r.keywords === 'string' ? JSON.parse(r.keywords) : r.keywords
+        }));
 
         // 2. FETCH APPOINTMENTS
-        const { data: appData, error: appError } = await db.from('appointments').select('*');
-        if (appError) throw appError;
+        const appRes = await db.execute('SELECT * FROM appointments');
+        const appData = appRes.rows;
 
         // Update State
         state.doctors = (doctorsData && doctorsData.length > 0) ? doctorsData : fallbackDoctors;
 
-        // Map Supabase columns (patient_name) to UI properties (patient)
+        // Map Turso columns to UI properties
         state.appointments = appData.map(a => ({
             id: a.id,
             patient: a.patient_name,
@@ -57,15 +63,16 @@ async function initDatabase() {
         }));
 
         renderDoctorCards(state.doctors);
-        console.log("✅ Database initialized from Supabase.");
+        console.log("✅ Database initialized from Turso.");
 
     } catch (err) {
-        console.error("⚠️ Supabase Error (Using Offline Mode):", err.message);
+        console.error("⚠️ Turso Error (Using Offline Mode):", err.message);
         state.doctors = fallbackDoctors;
-        state.appointments = []; // Empty apps in offline mode
+        state.appointments = [];
         renderDoctorCards(state.doctors);
     }
 }
+
 
 // --- EVENT LISTENERS ---
 if (symptomInput) {
@@ -227,7 +234,7 @@ async function performSmartSearch(sentence) {
 
     } catch (error) {
         console.warn("⚠️ Primary AI Error:", error.message);
-        
+
         try {
             aiStatusText.innerText = "Overload: Switching to Gemma 4...";
             console.log("🔄 Attempting Secondary AI (Gemma 4 31B)...");
@@ -237,7 +244,7 @@ async function performSmartSearch(sentence) {
         } catch (error2) {
             console.error("❌ All AI Models Overloaded:", error2.message);
             aiStatus.classList.add('opacity-0');
-            
+
             // Final Fallback: Ask user to switch to Keyword Mode
             showToast("We are currently experiencing high traffic on our AI servers. Would you like to switch to Keyword Match?", {
                 type: 'warning',
@@ -454,15 +461,18 @@ function savePatientReport() {
 async function resolveAppointment(id) {
     if (!confirm("Mark this appointment as resolved? This will remove it from your active list.")) return;
 
-    const { error } = await db.from('appointments').delete().eq('id', id);
-    if (error) {
+    try {
+        await db.execute({
+            sql: "DELETE FROM appointments WHERE id = ?",
+            args: [id]
+        });
+        showToast("Appointment resolved and archived.");
+        await initDatabase();
+        renderDoctorDashboard();
+    } catch (error) {
+        console.error("Resolve failed:", error);
         showToast("Error resolving appointment");
-        return;
     }
-
-    showToast("Appointment resolved and archived.");
-    await initDatabase();
-    renderDoctorDashboard();
 }
 
 function renderAdminTable() {
@@ -483,24 +493,25 @@ function renderAdminTable() {
     document.getElementById('admin-empty').classList.toggle('hidden', state.appointments.length > 0);
 }
 
-// --- ASYNC ACTIONS (SUPABASE) ---
+// --- ASYNC ACTIONS (TURSO) ---
 
 async function cancelApp(id) {
-    // 1. Delete from Supabase
-    const { error } = await db.from('appointments').delete().eq('id', id);
+    // 1. Delete from Turso
+    try {
+        await db.execute({
+            sql: "DELETE FROM appointments WHERE id = ?",
+            args: [id]
+        });
+        // 2. Refresh local data
+        await initDatabase();
 
-    if (error) {
+        // 3. Re-render Admin Table
+        renderAdminTable();
+        showToast("Appointment Removed");
+    } catch (error) {
         console.error("Delete failed:", error);
         showToast("Error removing appointment");
-        return;
     }
-
-    // 2. Refresh local data
-    await initDatabase(); // Re-fetch to keep UI in sync
-
-    // 3. Re-render Admin Table
-    renderAdminTable();
-    showToast("Appointment Removed");
 }
 
 // --- BOOKING ---
@@ -630,24 +641,19 @@ async function submitBooking() {
 
     if (!name || !date || !time) return showToast("Please select a date, time, and enter name");
 
-    // Insert into Supabase
-    const { error } = await db.from('appointments').insert([{
-        patient_name: name,
-        doctor_name: state.selectedDoctor.name,
-        specialty: state.selectedDoctor.specialty,
-        date_booked: date,
-        time_booked: time
-    }]);
-
-    if (error) {
+    // Insert into Turso
+    try {
+        await db.execute({
+            sql: "INSERT INTO appointments (patient_name, doctor_name, specialty, date_booked, time_booked) VALUES (?, ?, ?, ?, ?)",
+            args: [name, state.selectedDoctor.name, state.selectedDoctor.specialty, date, time]
+        });
+        showToast("Match Confirmed! Doctor notified.");
+        closeModal();
+        await initDatabase();
+    } catch (error) {
         console.error("Booking failed:", error);
         showToast("Booking Failed: " + error.message);
-        return;
     }
-
-    showToast("Match Confirmed! Doctor notified.");
-    closeModal();
-    await initDatabase();
 }
 
 function showToast(msg, options = {}) {
@@ -735,9 +741,9 @@ function router() {
 
     if (path === '/demo') {
         state.currentUser = state.doctors[0] || { name: "Dr. Sarah Chen", username: "sarah", role: "doctor", specialty: "Neurologist" };
-        
+
         const today = new Date().toISOString().split('T')[0];
-        
+
         state.appointments = [
             { id: 101, patient: "John Doe", doctor: state.currentUser.name, specialty: state.currentUser.specialty, date: today, time: "09:00" },
             { id: 102, patient: "Alice Smith", doctor: state.currentUser.name, specialty: state.currentUser.specialty, date: today, time: "10:30" },
@@ -747,9 +753,9 @@ function router() {
 
         localStorage.setItem(`report_John Doe`, JSON.stringify({ notes: "Patient reported recurring severe headaches over the last week.", diagnosis: "Tension Headache", rx: "Ibuprofen 400mg", timestamp: new Date().toISOString() }));
         localStorage.setItem(`report_Alice Smith`, JSON.stringify({ notes: "Follow up on migraine symptoms. Sensitivity to light remains.", diagnosis: "Chronic Migraine", rx: "Sumatriptan 50mg", timestamp: new Date().toISOString() }));
-        
+
         showToast("Demo Mode Activated");
-        
+
         // Internally act as dashboard
         history.replaceState(null, null, '/dashboard');
         path = '/dashboard';
@@ -795,6 +801,31 @@ function updateNav(path) {
 }
 
 window.addEventListener('popstate', router);
+
+// Expose functions to window for HTML event handlers (needed for module scripts)
+Object.assign(window, {
+    toggleSearchMenu,
+    selectSearchMode,
+    triggerSearch,
+    showAllDoctors,
+    handleLogin,
+    logout,
+    openModal,
+    closeModal,
+    openPatientModal,
+    closePatientModal,
+    savePatientReport,
+    resolveAppointment,
+    cancelApp,
+    submitBooking,
+    navigateTo,
+    hideToast,
+    selectDate,
+    selectTime,
+    simulateVoice,
+    simulateImage
+});
+
 
 document.addEventListener('DOMContentLoaded', () => {
     initDatabase().then(() => {
