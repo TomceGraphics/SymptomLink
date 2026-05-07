@@ -1,6 +1,18 @@
 const fs = require('fs');
 const path = require('path');
 
+// Local testing: Load .env if it exists
+if (fs.existsSync('.env')) {
+    const envConfig = fs.readFileSync('.env', 'utf8');
+    envConfig.split('\n').forEach(line => {
+        const [key, ...valueParts] = line.split('=');
+        if (key && valueParts.length > 0) {
+            process.env[key.trim()] = valueParts.join('=').trim();
+        }
+    });
+    console.log('Loaded local .env file');
+}
+
 // Ensure dist directory exists
 const distDir = path.join(__dirname, 'dist');
 if (!fs.existsSync(distDir)) {
